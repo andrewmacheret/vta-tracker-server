@@ -21,7 +21,7 @@ Installation steps:
 
 * `git clone <clone url>`
 * `cd vta-tracker-server/`
-* `cp mysql.properties.example mysql.properties` and edit `mysql.properties` (change the password)
+* `cp mysql.properties.example mysql.properties && chmod 600 mysql.properties` and edit `mysql.properties` to change the password
 * `./setup.sh` - this will do the following:
  1. Install npm modules
  1. Download the latest gtfs data
