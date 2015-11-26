@@ -12,11 +12,13 @@ Prereqs:
 
 Installation steps:
 * Run the following commands in `mysql`:
-  ```sql
+
+  ```
   create user gtfs@localhost identified by password 'CHOOSE A PASSWORD';
   grant FILE on *.* to gtfs@localhost;
   create database gtfs;
   ```
+
 * `git clone <clone url>`
 * `cd vta-tracker-server/`
 * Run the following 
