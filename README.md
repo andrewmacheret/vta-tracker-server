@@ -11,7 +11,7 @@ Prereqs:
 * [MySQL server](https://dev.mysql.com)
 
 Installation steps:
-* Run the following commands in `mysql`:
+* Run the following commands in MySQL:
 
   ```
   create user gtfs@localhost identified by password 'CHOOSE A PASSWORD';
@@ -21,7 +21,6 @@ Installation steps:
 
 * `git clone <clone url>`
 * `cd vta-tracker-server/`
-* Run the following 
 * `cp mysql.properties.example mysql.properties` and edit `mysql.properties` (change the password)
 * `./setup.sh` - this will do the following:
  1. Install npm modules
