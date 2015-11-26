@@ -1,4 +1,4 @@
-modules.export = {
+module.exports = {
   "port": 3002
 };
 
