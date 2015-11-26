@@ -1,0 +1,6 @@
+node_modules/
+data/
+raw_data.zip
+mysql.properties
+gtfs.backup.dmp*
+
