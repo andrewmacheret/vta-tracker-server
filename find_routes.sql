@@ -29,14 +29,16 @@ update stop_times set actual_departure_time = substring_index(SUBSTRING_INDEX(de
 
 alter table trips add index idx1 (trip_id, service_id);
 
-update stop_times set arrival_time = str_to_date(arrival_time, '%k:%i:%s');
-update stop_times set departure_time = str_to_date(departure_time, '%k:%i:%s');
+update stop_times set arrival_time = if(arrival_time='', '00:00:00', date_format(time(arrival_time), '%H:%i:%s'));
+update stop_times set departure_time = if(departure_time='', '00:00:00', date_format(time(departure_time), '%H:%i:%s'));
 
 alter table stop_times modify column arrival_time time not null;
 alter table stop_times modify column departure_time time not null;
 alter table stop_times modify column stop_sequence int(11) not null;
 
 
+
+set session sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 
 drop procedure if exists find_routes;
 delimiter ;;
@@ -100,10 +102,10 @@ select t.route_id, t.trip_id, max(s1.stop_sequence) ss1, min(s2.stop_sequence) s
   group by t.trip_id
   having ss1 is not null and ss2 is not null
 ) t
-join stop_times st1 on st1.trip_id = t.trip_id and st1.stop_sequence = t.ss1
-join stops s1 on s1.stop_id = st1.stop_id
-join stop_times st2 on st2.trip_id = t.trip_id and st2.stop_sequence = t.ss2
-join stops s2 on s2.stop_id = st2.stop_id
+straight_join stop_times st1 on st1.trip_id = t.trip_id and st1.stop_sequence = t.ss1
+straight_join stops s1 on s1.stop_id = st1.stop_id
+straight_join stop_times st2 on st2.trip_id = t.trip_id and st2.stop_sequence = t.ss2
+straight_join stops s2 on s2.stop_id = st2.stop_id
 ) u
 order by 1,2
 ;
