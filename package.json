@@ -1,0 +1,26 @@
+{
+  "name": "vta-tracker-server",
+  "version": "1.0.0",
+  "description": "REST wrapper and downloader for gtfs data provided by the VTA",
+  "main": "gtfs-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewmacheret/vta-tracker-server.git"
+  },
+  "author": "Andrew Macheret",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewmacheret/vta-tracker-server/issues"
+  },
+  "homepage": "https://github.com/andrewmacheret/vta-tracker-server#readme",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "moment-timezone": "^0.5.4",
+    "mysql": "^2.10.2",
+    "properties-reader": "0.0.15"
+  }
+}
