@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 basedir="$( dirname "$0" )"
 
@@ -12,6 +12,6 @@ unzip "$basedir"/raw_data.zip -d "$basedir"/data || exit 1
 
 rm "$basedir"/raw_data.zip || exit 1
 
-dos2unix "$basedir"/data/*.txt
+dos2unix "$basedir"/data/*.txt || exit 1
 
 

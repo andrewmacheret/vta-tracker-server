@@ -20,9 +20,15 @@ done
 
 (
   cd "$basedir"
-  mysql --defaults-extra-file=mysql.properties --verbose --local-infile < /tmp/load_data_gtfs.sql
-  mysql --defaults-extra-file=mysql.properties --verbose --local-infile < find_routes.sql
-)
+  echo
+  echo "Loading gtfs data..."
+  mysql --defaults-extra-file=mysql.properties --verbose --local-infile < /tmp/load_data_gtfs.sql || exit 1
+  echo
+  echo "Running extra sql..."
+  mysql --defaults-extra-file=mysql.properties --verbose --local-infile < find_routes.sql || exit 1
+) || exit 1
 
 rm /tmp/load_data_gtfs.sql
 
+echo
+echo "Done!"

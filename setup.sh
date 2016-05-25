@@ -1,8 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 
-npm install
-
-./download_data.sh
-./setup_structure.sh
-./setup_data.sh
-
+./download_gtfs_file.sh || exit 1
+./setup_db_structure.sh || exit 1
+./setup_db_data.sh || exit 1
