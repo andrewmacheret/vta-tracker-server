@@ -29,7 +29,7 @@ script:
   - docker build -t "${DOCKER_USERNAME}/${CONTAINER_NAME}":latest .
   - docker run -d --name mysql --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" mysql:5.7
   - docker run -d --name "${CONTAINER_NAME}" -p "${TEST_PORT}":80 --link mysql:mysql "${DOCKER_USERNAME}/${CONTAINER_NAME}"
-  - sleep 30
+  - sleep 120
 
   - test "$( curl -sI localhost:"${TEST_PORT}/find_routes" | head -1 | sed 's/\r$//' )" == "HTTP/1.1 200 OK"
 
