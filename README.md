@@ -1,5 +1,7 @@
 # vta-tracker-server
 
+[![Build Status](https://travis-ci.org/andrewmacheret/vta-tracker-server.svg?branch=master)](https://travis-ci.org/andrewmacheret/vta-tracker-server) [![Docker Stars](https://img.shields.io/docker/stars/andrewmacheret/vta-tracker-server.svg)](https://hub.docker.com/r/andrewmacheret/vta-tracker-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/andrewmacheret/vta-tracker-server.svg)](https://hub.docker.com/r/andrewmacheret/vta-tracker-server/) [![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/vta-tracker-server/blob/master/LICENSE.md)
+
 MySQL and REST server for providing [VTA GTFS data](http://www.vta.org/getting-around/gtfs-info/gtfs-information) in a friendly manner and current VTA bus routes using that data.
 
 Intended for use by [andrewmacheret/vta-tracker](https://github.com/andrewmacheret/vta-tracker/).
