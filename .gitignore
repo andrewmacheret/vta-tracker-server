@@ -1,6 +1,4 @@
-node_modules/
-data/
-raw_data.zip
-mysql.properties
-gtfs.backup.dmp*
-
+.DS_Store
+app/node_modules/
+app/data/
+app/raw-data.zip
