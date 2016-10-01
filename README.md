@@ -6,40 +6,77 @@ MySQL and REST server for providing [VTA GTFS data](http://www.vta.org/getting-a
 
 Intended for use by [andrewmacheret/vta-tracker](https://github.com/andrewmacheret/vta-tracker/).
 
-See it running at [http://vta.andrewmacheret.com](http://vta.andrewmacheret.com).
+See it running at [https://andrewmacheret.com/projects/vta-tracker](https://andrewmacheret.com/projects/vta-tracker).
+
+## Docker usage:
 
 Prereqs:
+
 * [Node.js](https://nodejs.org/) on a linux server
-* [MySQL server](https://dev.mysql.com)
 
-Installation steps:
-* Run the following commands in MySQL:
+* [Docker](https://www.docker.com/products/docker)
 
-  ```
-  create user gtfs@localhost identified by password 'CHOOSE A PASSWORD';
-  grant FILE on *.* to gtfs@localhost;
-  create database gtfs;
-  ```
+Usage:
 
-* `git clone <clone url>`
-* `cd vta-tracker-server/`
-* `npm install`
-* At this point, if you have [docker](https://docker.com) then you can run `docker build -t <tag-name> .` to create a docker image
-* If not:
- * `cp mysql.properties.example mysql.properties && chmod 600 mysql.properties` and edit `mysql.properties` to change the password
- * `./setup.sh` - this will do the following:
-  1. Download the latest gtfs data
-  1. Load that data into MySQL
- * Modify `port` in `settings.js` as needed
- * `node gtfs-server.js`
+```bash
+# install node prerequisites
+cd app/
+npm install
 
-Note: This data changes on a quarterly basis. `./setup.sh` should be run during between quarters, perhaps with a cron job.
-* A future enhancement would be to run the `./setup.sh` on an `end_date` value in the `/calendar` API.
+# set a mysql root password
+export MYSQL_ROOT_PASSWORD='some-password'
 
-Test it:
+# start a mysql server, don't publish a port
+docker run -d \
+  --name mysql \
+  --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
+  mysql:5.7
+
+# start vta-tracker-server once the mysql server is up and running (probably takes within 5 seconds)
+docker run -d \
+  --name vta-tracker-server \
+  -p 80:80 \
+  --link mysql:mysql \
+  --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
+  andrewmacheret/vta-tracker-server
+```
+
+## Manual usage:
+
+Prereqs:
+
+* [MySQL server](https://dev.mysql.com) - requires minimum of 5.7, although you can get it working in 5.6 if you fix compatibility issues in [02-setup-db-structure.sh](app/02-setup-db-structure.sh))
+
+* [Node.js](https://nodejs.org/)
+
+* bash, python (both come with most linux distros)
+
+Usage:
+
+```bash
+# install node prerequisites
+cd app/
+npm install
+
+# modify mysql.properties with your mysql root credentials with your preferred editor
+nano mysql.properties
+# recommended you also change permissions on this file
+chmod 600 mysql.properties
+
+# run all setup steps (download gtfs data, create gtfs user and database, and set up cron for the current user)
+./setup.sh
+
+# start the gtfs server
+node gtfs-server.js
+```
+
+You can modify the port in [settings.js](app/settings.js).
+
+## Test it out:
+
 * `curl 'http://localhost'`.
- * This should give a list of available APIs.
+  * This should give a list of available APIs.
 * `curl 'http://localhost/agencies'`.
- * This should return a JSON representing the VTA as an agency.
+  * This should return a JSON representing the VTA as an agency.
 * `curl 'http://localhost/find_routes'`.
- * This should give the currently active routes and is used by [andrewmacheret/vta-tracker](https://github.com/andrewmacheret/vta-tracker/).
+  * This should give the currently active routes and is used by [andrewmacheret/vta-tracker](https://github.com/andrewmacheret/vta-tracker/).
