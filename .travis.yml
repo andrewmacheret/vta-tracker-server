@@ -6,7 +6,7 @@ node_js:
   - '6'
 
 addons:
-  ssh_known_hosts: andrewmacheret.com
+  ssh_known_hosts: servers.andrewmacheret.com
 
 env:
   global:
@@ -53,4 +53,4 @@ after_success:
   #- eval "$(ssh-agent -s)"
   #- chmod 600 "${TRAVIS_BUILD_DIR}/id_rsa_a1-server"
   #- ssh-add "${TRAVIS_BUILD_DIR}/id_rsa_a1-server"
-  #- ssh ubuntu@andrewmacheret.com "cd ~/servers && docker-compose pull ${SERVICE_NAME} && docker-compose up -d --force-recreate ${SERVICE_NAME}"
+  #- ssh a1@servers.andrewmacheret.com "cd ~/servers/a1-server && docker-compose pull ${SERVICE_NAME} && docker-compose up -d --force-recreate ${SERVICE_NAME}"
