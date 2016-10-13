@@ -38,7 +38,7 @@ function buildUrl(req, relativeLink) {
 }
 
 app.get('/', function(req, res) {
-  //res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
   
   var links = [];
   apis.forEach(function(api) {
@@ -49,7 +49,7 @@ app.get('/', function(req, res) {
 
 tables.forEach(function(table) {
   app.get('/' + table, function(req, res) { 
-    //res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
     var start = parseInt(req.query._start, 10) || 0;
     var limit = parseInt(req.query._limit, 10) || 10;
     if (start < 0) start = 0;
@@ -92,7 +92,7 @@ tables.forEach(function(table) {
 });
 
 app.get('/find_routes', function(req, res) {
-  //res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
   var time = req.query.time && moment.tz(req.query.time) || moment();
   var formattedTime = time.tz('America/Los_Angeles').format('YYYY-MM-DD HH:mm:ss');
   connection.connect(function(err) {
