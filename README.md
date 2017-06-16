@@ -19,10 +19,6 @@ Prereqs:
 Usage:
 
 ```bash
-# install node prerequisites
-cd app/
-npm install
-
 # set a mysql root password
 export MYSQL_ROOT_PASSWORD='some-password'
 
