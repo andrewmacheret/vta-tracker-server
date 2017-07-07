@@ -9,8 +9,32 @@ app.use(bodyParser.urlencoded({extended: true}));
 var path = require('path');
 var propertiesReader = require('properties-reader');
 var mysqlProperties = propertiesReader(path.join(__dirname, 'mysql-gtfs.properties')).path();
-var connection = mysql.createConnection(mysqlProperties.client);
+//var connection = mysql.createConnection(mysqlProperties.client);
 var settings = require('./settings.js');
+
+function connectSafe(callback) {
+  var tryAgain = function() {
+    connectSafe(callback);
+  };
+  
+  var connection = mysql.createConnection(mysqlProperties.client);
+  connection.connect(function(err) {
+    if (err) {
+      console.log('error when connecting to db, trying again in 1000 ms:', err);
+      setTimeout(tryAgain, 1000);
+      return;
+    }
+    callback(null, connection);
+  });
+  connection.on('error', function(err) {
+    console.log('db error', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      tryAgain();
+    } else {
+      callback(err);
+    }
+  });
+}
 
 function send(res, json) {
   if (json.error) res.status(500);
@@ -78,7 +102,11 @@ tables.forEach(function(table) {
     args.push(start);
     args.push(limit);
     
-    connection.connect(function(err) {
+    connectSafe(function(err, connection) {
+      if (err) {
+        send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
+        return;
+      }
       var query = connection.query(selectSql + whereSql + limitSql, args, function(err, results, fields) {
         if (err) {
           send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
@@ -95,7 +123,11 @@ app.get('/find_routes', function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
   var time = req.query.time && moment.tz(req.query.time) || moment();
   var formattedTime = time.tz('America/Los_Angeles').format('YYYY-MM-DD HH:mm:ss');
-  connection.connect(function(err) {
+  connectSafe(function(err, connection) {
+    if (err) {
+      send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
+      return;
+    }
     var query = connection.query('call find_routes(?)', [formattedTime], function(err, results, fields) {
       if (err) {
         send(res, {success: false, time: time, err: err});
