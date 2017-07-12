@@ -5,8 +5,8 @@ language: node_js
 node_js:
   - '6'
 
-addons:
-  ssh_known_hosts: servers.andrewmacheret.com
+#addons:
+#  ssh_known_hosts: servers.andrewmacheret.com
 
 env:
   global:
@@ -32,7 +32,7 @@ script:
   - set -e
   - docker build -t "${DOCKER_USERNAME}/${CONTAINER_NAME}":latest .
   - docker run -d --name mysql --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" mysql:5.7
-  - sleep 5
+  - sleep 10
   - docker logs mysql
   - docker run -d --name "${CONTAINER_NAME}" -p "${TEST_PORT}":80 --link mysql:mysql --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" "${DOCKER_USERNAME}/${CONTAINER_NAME}" nodejs gtfs-server.js
   - docker exec -t "${CONTAINER_NAME}" ./setup.sh
@@ -49,7 +49,7 @@ after_success:
   - docker tag "${DOCKER_USERNAME}/${CONTAINER_NAME}":latest "${DOCKER_USERNAME}/${CONTAINER_NAME}":"${VERSION}"
   - docker push "${DOCKER_USERNAME}/${CONTAINER_NAME}":latest
   - docker push "${DOCKER_USERNAME}/${CONTAINER_NAME}":"${VERSION}"
-  # ssh deploy
+  ## ssh deploy
   #- openssl aes-256-cbc -K $encrypted_f58f5f074197_key -iv $encrypted_f58f5f074197_iv -in id_rsa_a1-server.enc -out "${TRAVIS_BUILD_DIR}/id_rsa_a1-server" -d
   #- eval "$(ssh-agent -s)"
   #- chmod 600 "${TRAVIS_BUILD_DIR}/id_rsa_a1-server"
