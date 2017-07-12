@@ -130,7 +130,7 @@ tables.forEach(function(table) {
 });
 
 app.get('/find_routes', function(req, res) {
-  consle.log('/find_routes');
+  console.log('/find_routes');
   res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
   var time = req.query.time && moment.tz(req.query.time) || moment();
   var formattedTime = time.tz('America/Los_Angeles').format('YYYY-MM-DD HH:mm:ss');
