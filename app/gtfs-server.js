@@ -17,29 +17,38 @@ function connectSafe(callback) {
     connectSafe(callback);
   };
   
+  console.log('mysql connection - creating mysql connection');
   var connection = mysql.createConnection(mysqlProperties.client);
   connection.connect(function(err) {
     if (err) {
-      console.log('error when connecting to db, trying again in 1000 ms:', err);
+      console.log('mysql connection - error when connecting to db, trying again in 1000 ms:', err);
       setTimeout(tryAgain, 1000);
       return;
     }
+    console.log('mysql connection - mysql connected');
     callback(null, connection);
   });
   connection.on('error', function(err) {
-    console.log('db error', err);
+    console.log('mysql connection - db error', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.log('mysql connection - trying again', err);
       tryAgain();
     } else {
+      console.log('mysql connection - giving up', err);
       callback(err);
     }
   });
 }
 
 function send(res, json) {
-  if (json.error) res.status(500);
+  if (json.error) {
+    res.status(500);
+    console.log('error', json);
+  } else {
+    console.log('success');
+  }
   var msg = JSON.stringify(json);
-  console.log(msg);
+  //console.log(msg);
   res.set({
     'Content-Type': 'application/json'
   });
@@ -72,7 +81,8 @@ app.get('/', function(req, res) {
 });
 
 tables.forEach(function(table) {
-  app.get('/' + table, function(req, res) { 
+  app.get('/' + table, function(req, res) {
+    console.log('GET: /' + table);
     res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
     var start = parseInt(req.query._start, 10) || 0;
     var limit = parseInt(req.query._limit, 10) || 10;
@@ -80,7 +90,6 @@ tables.forEach(function(table) {
     if (limit <= 0 || limit > 100) limit = 10;
     var args = [];
     
-
     var selectSql = 'select * from ' + table;
     var whereSql = '';
     var limitSql = ' limit ?,?';
@@ -107,28 +116,33 @@ tables.forEach(function(table) {
         send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
         return;
       }
+      console.log('querying:', selectSql + whereSql + limitSql, args);
       var query = connection.query(selectSql + whereSql + limitSql, args, function(err, results, fields) {
+        console.log('sql:', query.sql);
         if (err) {
           send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
           return;
         }
         send(res, {success: true, params: params, _start: start, _limit: limit, _count: results.length, results: results});
       });
-      console.log(query.sql);
     });
   });
 });
 
 app.get('/find_routes', function(req, res) {
+  consle.log('/find_routes');
   res.setHeader('Access-Control-Allow-Origin', 'https://andrewmacheret.com');
   var time = req.query.time && moment.tz(req.query.time) || moment();
   var formattedTime = time.tz('America/Los_Angeles').format('YYYY-MM-DD HH:mm:ss');
+  
   connectSafe(function(err, connection) {
     if (err) {
       send(res, {success: false, params: params, _start: start, _limit: limit, err: err});
       return;
     }
+    console.log('querying:', 'call find_routes(?)', [formattedTime]);
     var query = connection.query('call find_routes(?)', [formattedTime], function(err, results, fields) {
+      console.log('sql:', query.sql);
       if (err) {
         send(res, {success: false, time: time, err: err});
         return;
