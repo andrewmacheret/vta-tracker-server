@@ -32,7 +32,8 @@ script:
   - set -e
   - docker build -t "${DOCKER_USERNAME}/${CONTAINER_NAME}":latest .
   - docker run -d --name mysql --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" mysql:5.7
-  - sleep 10
+  #- sleep 10
+  - while [ "$( docker logs 43bd4e15894d 2>&1 | (grep 'starting as process' || true) | wc -l )" -lt 2 ]; do sleep 1; done
   - docker logs mysql
   - docker run -d --name "${CONTAINER_NAME}" -p "${TEST_PORT}":80 --link mysql:mysql --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" "${DOCKER_USERNAME}/${CONTAINER_NAME}" nodejs gtfs-server.js
   - docker exec -t "${CONTAINER_NAME}" ./setup.sh
