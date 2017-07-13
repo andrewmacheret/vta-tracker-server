@@ -38,6 +38,7 @@ script:
   - docker exec -t "${CONTAINER_NAME}" ./setup.sh
 
   - TEST_OUTPUT="$( curl -sI localhost:"${TEST_PORT}/find_routes" | head -1 | sed 's/\r$//' )"
+  - echo "TEST_OUTPUT=$TEST_OUTPUT"
   - test "$TEST_OUTPUT" == "HTTP/1.1 200 OK"
 
   - docker rm -f "${CONTAINER_NAME}"
