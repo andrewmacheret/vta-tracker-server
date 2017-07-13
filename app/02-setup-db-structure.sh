@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+set -e
 
 # store password for root
 sed -i'' 's/^password = .*$/password = '"${MYSQL_ROOT_PASSWORD}"'/' mysql-root.properties
@@ -28,26 +29,68 @@ echo
 echo "Creating database and user..."
 echo "${create_db_and_user_sql}" | mysql --defaults-extra-file=mysql-root.properties
 
+if [ ! -f data/dump.sql ]; then
 
-stupid() {
-  table=$( echo "$1" | sed -r 's:^.*/([^/.]+).txt:\1:' )
+  stupid1() {
+    table=$( echo "$1" | sed -r 's:^.*/([^/.]+).txt:\1:' )
 
-  echo "drop table if exists ${table}; create table ${table} ( "
-  head -1 $1 | sed -e 's/,/ varchar(255),\n/g' | sed 's/"//g'
-  echo " varchar(255) );"
-}
+    echo "drop table if exists ${table}; create table ${table} ( "
+    head -1 $1 | sed -e 's/,/ varchar(255),\n/g' | sed 's/"//g'
+    echo " varchar(255) );"
+  }
 
+  (
+    set -e
+    for file in $(ls data/*.txt); do
+      stupid1 $file
+      echo
+    done
+  ) > /tmp/create-gtfs.sql
 
-(
-for file in $(ls data/*.txt); do
-  stupid $file
   echo
-done
-) > /tmp/create-gtfs.sql
+  echo "Creating tables..."
+  mysql --defaults-extra-file=mysql-gtfs.properties --verbose < /tmp/create-gtfs.sql
+
+  rm /tmp/create-gtfs.sql
+
+
+  stupid2() {
+    file="$1"
+    table_name=$( echo "$file" | sed -r 's:^.*/([^/.]+).txt:\1:' )
+
+    echo "TRUNCATE TABLE ${table_name}; LOAD DATA LOCAL INFILE '${file}' IGNORE INTO TABLE ${table_name} FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' LINES TERMINATED BY '\\n' IGNORE 1 LINES;"
+  }
+
+  (
+    set -e
+    for file in $(ls data/*.txt); do
+      stupid2 $file
+      echo
+    done
+  ) > /tmp/load-data-gtfs.sql
+
+  echo
+  echo "Loading gtfs data..."
+  mysql --defaults-extra-file=mysql-gtfs.properties --verbose --local-infile < /tmp/load-data-gtfs.sql
+  echo
+  echo "Running extra sql..."
+  mysql --defaults-extra-file=mysql-gtfs.properties --verbose --local-infile < find-routes.sql
+
+  rm /tmp/load-data-gtfs.sql
+
+  echo
+  echo "Dumping database to data/dump.sql"
+  mysqldump --defaults-extra-file=mysql-root.properties "$database" > data/dump.sql
+
+else
+
+  echo
+  echo "Restoring database from data/dump.sql"
+  mysql --defaults-extra-file=mysql-gtfs.properties < data/dump.sql
+
+fi
+
 
 echo
-echo "Creating tables..."
-mysql --defaults-extra-file=mysql-gtfs.properties --verbose < /tmp/create-gtfs.sql
-
-rm /tmp/create-gtfs.sql
+echo "Done!"
 
