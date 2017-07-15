@@ -131,6 +131,7 @@ tables.forEach(function(table) {
       }
       console.log(req.id, 'querying:', selectSql + whereSql + limitSql, args);
       var query = connection.query(selectSql + whereSql + limitSql, args, function(err, results, fields) {
+        connection.destroy();
         console.log(req.id, 'sql:', query.sql);
         if (err) {
           send(req, res, {success: false, params: params, _start: start, _limit: limit, err: err});
@@ -155,6 +156,7 @@ app.get('/find_routes', function(req, res) {
     }
     console.log(req.id, 'querying:', 'call find_routes(?)', [formattedTime]);
     var query = connection.query('call find_routes(?)', [formattedTime], function(err, results, fields) {
+      connection.destroy();
       console.log(req.id, 'sql:', query.sql);
       if (err) {
         send(req, res, {success: false, time: time, err: err});
